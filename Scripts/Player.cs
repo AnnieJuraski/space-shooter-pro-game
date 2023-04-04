@@ -69,7 +69,7 @@ public class Player : MonoBehaviour
             Debug.Log("The UI Manager is NULL");
         }
 
-        if (_audioSource== null)
+        if (_audioSource == null)
         {
             Debug.Log("Audio Source in NULL");
         }
@@ -83,28 +83,28 @@ public class Player : MonoBehaviour
     void Update()
     {
         if (Time.timeScale == 0)
-        {
+        
             return;
-        }
+        
         
         CalculateMovement();
                           
 
-        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) && Time.time > _newFire && _PlayerOne == false && _PlayerTwo == false)
-        {
+        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) && Time.time > _newFire && _PlayerTwo == false)
+        
             ShootLaser();
-        }
+        
 
 
         else if (Input.GetKeyDown(KeyCode.Space) && Time.time > _newFire && _PlayerOne == true)
-        {
+        
             ShootLaser();
-        }
+        
 
         else if (Input.GetMouseButtonDown(0) && Time.time > _newFire && _PlayerTwo == true)
-        {
+        
             ShootLaser();
-        }
+        
 
     }
 
@@ -113,66 +113,40 @@ public class Player : MonoBehaviour
 
     void CalculateMovement()
     {
+        float horizontalInput;
+        float verticalInput;
+        
 
-        if (_PlayerTwo == false)
+        if (!_PlayerTwo)
         {
-            float HorizontalInput = Input.GetAxis("Horizontal");
-            float VerticalInput = Input.GetAxis("Vertical");
-            Vector3 direction = new Vector3(HorizontalInput, VerticalInput, 0);
-
-            if (_speedBoostActive == false)
-            {
-                transform.Translate(direction * _speed * Time.deltaTime);
-            }
-
-            else
-            {
-                transform.Translate(direction * (_speed * 1.5f) * Time.deltaTime);
-            }
-                                    
+            horizontalInput = Input.GetAxisRaw("Horizontal");
+            verticalInput = Input.GetAxisRaw("Vertical");
         }
-
         else
         {
-            float _speedboost = 1.0f;
-            if (_speedBoostActive == true)
-            {
-                _speedboost = 1.5f;
-            }
-
-            if (Input.GetKey(KeyCode.Keypad8))
-            {
-                transform.Translate(Vector3.up * _speed * _speedboost * Time.deltaTime);
-            }
-
-            else if (Input.GetKey(KeyCode.Keypad5))
-            {
-                transform.Translate(Vector3.down * _speed * _speedboost * Time.deltaTime);
-            }
-
-            if (Input.GetKey(KeyCode.Keypad4))
-            {
-                transform.Translate(Vector3.left * _speed * _speedboost * Time.deltaTime);
-            }
-
-            else if (Input.GetKey(KeyCode.Keypad6))
-            {
-                transform.Translate(Vector3.right * _speed * _speedboost * Time.deltaTime);
-            }
-                                
+            
+            horizontalInput = Input.GetAxisRaw("P2Horizontal");
+            verticalInput = Input.GetAxisRaw("P2Vertical");
         }
+
+        Vector3 direction = new(horizontalInput, verticalInput, 0);
+
+        float currentSpeedBoost = _speedBoostActive ? 1.5f : 1;
+
+        transform.Translate(_speed * currentSpeedBoost * Time.deltaTime * direction);
+
 
         transform.position = new Vector3(transform.position.x, Mathf.Clamp(transform.position.y, -3.9f, 0), 0);
 
 
         if (transform.position.x > 9.6f)
-        {
+        
             transform.position = new Vector3(-9.6f, transform.position.y, 0);
-        }
+        
         else if (transform.position.x < -9.6f)
-        {
+        
             transform.position = new Vector3(9.6f, transform.position.y, 0);
-        }
+        
 
     }
 
@@ -183,15 +157,9 @@ public class Player : MonoBehaviour
     {
         _newFire = Time.time + _fireRate;
 
-        if (_canTripleShot == false)
-        {
-            Instantiate(_laserPrefab, transform.position + new Vector3(0, 0.44f, 0), Quaternion.identity);
-        }
+        var ShotType = _canTripleShot ? _tripleShot : _laserPrefab;
 
-        else if (_canTripleShot == true)
-        {
-            Instantiate(_tripleShot, transform.position, Quaternion.identity);
-        }
+        Instantiate(ShotType, transform.position + new Vector3(0, 0.44f, 0), Quaternion.identity);              
 
         _audioSource.Play();
     }
@@ -216,7 +184,7 @@ public class Player : MonoBehaviour
             _leftEngine.SetActive(true);
         }
 
-        else if (_lives ==1)
+        else if (_lives == 1)
         {
             _rightEngine.SetActive(true);
         }
